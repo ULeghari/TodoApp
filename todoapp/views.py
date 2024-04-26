@@ -7,6 +7,25 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 
 class UserRegistrationAPIView(APIView):
+    """
+        API endpoint for user registration.
+
+        Accepted Request Methods:
+        - POST
+
+        POST:
+        Create a new user.
+
+        Parameters:
+        - username: The username for the new user.
+        - email: The email for the new user.
+        - password: The password for the new user.
+
+        Response:
+        {
+            "message": "User successfully created"
+        }
+    """
     def post(self, request):
         username = request.data.get('username')
         email = request.data.get('email')
@@ -22,6 +41,24 @@ class UserRegistrationAPIView(APIView):
         return Response({'message': "User successfully created"}, status=status.HTTP_201_CREATED)
 
 class UserLoginAPIView(APIView):
+    """
+        API endpoint for login.
+
+        Accepted Request Methods:
+        - POST
+
+        POST:
+        Authenticate and login the user.
+
+        Parameters:
+        - username: Username of the user.
+        - password: Password of the user.
+
+        JSON Response:
+        {
+            "message": "Login successful"
+        }
+    """
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -32,12 +69,59 @@ class UserLoginAPIView(APIView):
         else:
             return Response({'error': "Wrong credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
+
 class UserLogoutAPIView(APIView):
+    """
+        API endpoint for logout.
+        
+        Accepted Request Methods:
+        - POST
+
+        Expected Inputs: None
+
+        POST:
+        Logout authenticated user.
+
+        JSON Response:
+        {
+            "message": "Logout successful"
+        }
+    """
     def post(self, request):
         logout(request)
         return Response({'message': "Logout successful"})
 
+
 class ToDoListCreateAPIView(APIView):
+    """
+        API endpoint for creating and retrieving todo items.
+        Accepted Request Methods:
+        - GET
+        - POST
+
+        Expected Inputs for POST:
+        - todo_name (string): Name of the todo item.
+        - description (string): Description of the todo item.
+
+        GET:
+        Get a list of todo items for the authenticated user.
+
+        POST:
+        Create a new todo item for authenticated user.
+
+        Parameters for POST:
+        - todo_name: Name of the todo item.
+        - description: Description of the todo item.
+
+        JSON Response:
+        {
+            "id": 1,
+            "todo_name": "Name",
+            "description": "Description of item",
+            "status": false,
+            "user": 1
+        }
+    """
     def get(self, request):
         todos = ToDo.objects.filter(user=request.user)
         serializer = ToDoSerializer(todos, many=True)
@@ -55,6 +139,36 @@ class ToDoListCreateAPIView(APIView):
 
 
 class ToDoDetailAPIView(APIView):
+    """
+        API endpoint for retrieving, updating, and deleting todo items.
+
+        Accepted Request Methods:
+        - GET
+        - PUT
+        - DELETE
+
+        Expected Inputs for PUT:
+        - todo_name (string): Name of the todo item.
+        - description (string): Description of the todo item.
+
+        GET:
+        Get the details of todo item.
+
+        PUT:
+        Update the details of todo item.
+
+        DELETE:
+        Delete todo item.
+
+        JSON Response for GET and PUT:
+        {
+            "id": 1,
+            "todo_name": "Name",
+            "description": "Description of item",
+            "status": false,
+            "user": 1
+        }
+    """
     def get_object(self, name):
         try:
             return ToDo.objects.get(user=self.request.user, todo_name=name)
